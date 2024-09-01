@@ -1,2 +1,290 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define max 100
+
+typedef struct Lista
+{
+    char nome[40];
+    float valor;
+    int qnt;
+} lista;
+
+lista produtos[100];
+char nomes_cadastrados[100][40];
+
+int menu(int ind);
+int cad(int ind, int nomes_ind);
+void buscar(int ind);
+void impri_produtos(int ind);
+int impri_tudo(int ind);
+void alterar(int ind);
+int remover(int ind, int nomes_ind);
+int volt();
+
+int main()
+{
+    int op = 0, ind = 0;
+    int nomes_ind = 0;
+    do
+    {
+        op = menu(ind);
+        switch (op)
+        {
+        case 1:
+            ind = cad(ind, nomes_ind);
+            break;
+        case 2:
+            impri_produtos(ind);
+            break;
+        case 3:
+            buscar(ind);
+            break;
+        case 4:
+            alterar(ind);
+            break;
+        case 5:
+            ind = remover(ind, nomes_ind);
+            break;
+        case 6:
+            printf("\nO programa vai ser encerrado...\n");
+            break;
+        default:
+            system("cls");
+            printf("\nErro! Escolha apenas do 1 ao 6\n");
+            break;
+        }
+    } while (op != 6);
+
+    return 0;
+}
+
+int menu(int ind)
+{
+    printf("\nCadastros: %d   Espacos restantes: %d\n", ind, max - ind);
+    int op;
+    printf("------------- Menu -------------");
+    printf("\n1 - Cadastro");
+    printf("\n2 - Listar todos os produtos");
+    printf("\n3 - Buscar produto");
+    printf("\n4 - Alterar preco do produto");
+    printf("\n5 - Remover produto");
+    printf("\n6 - Sair do programa");
+    printf("\n--------------------------------");
+    printf("\nDigite a sua opcao: ");
+    scanf("%d", &op);
+    getchar();
+    return op;
+}
+
+int cad(int ind, int nomes_ind)
+{
+    system("cls");
+    int exit = 2;
+    while (exit == 2)
+    {
+        if (ind < max)
+        {
+            printf("\nInsira o nome do produto: ");
+            fgets(produtos[ind].nome, 40, stdin);
+            produtos[ind].nome[strcspn(produtos[ind].nome, "\n")] = '\0';
+
+            strcpy(nomes_cadastrados[nomes_ind], produtos[ind].nome);
+            nomes_ind++;
+
+            printf("Entre com o preco do produto %s: ", produtos[ind].nome);
+            scanf("%f", &produtos[ind].valor);
+            printf("Digite a quantidade do produto %s: ", produtos[ind].nome);
+            scanf("%d", &produtos[ind].qnt);
+            getchar();
+            ind++;
+        }
+        else
+        {
+            printf("\nNumero maximo de cadastros alcancados\n\n");
+        }
+        system("cls");
+        printf("-------------------------------------------------------");
+        printf("\nExibicao dos dados armazenados apenas nesse cadastro");
+        for (int i = 0; i < nomes_ind; i++)
+        {
+            printf("\nProduto %d: %s \tValor R$: %.2f \tUnidade(s): %d", i + 1, produtos[i].nome, produtos[i].valor, produtos[i].qnt);
+        }
+        printf("\n");
+        exit = volt();
+    }
+
+    return ind;
+}
+
+void impri_produtos(int ind)
+{
+    system("cls");
+    int exit = 2, tudo;
+    while (exit == 2)
+    {
+        if (ind == 0)
+        {
+            printf("\nNenhum produto cadastrado.\n");
+        }
+        else
+        {
+            tudo = impri_tudo(ind);
+        }
+        exit = volt();
+    }
+}
+
+int impri_tudo(int ind)
+{
+    printf("\n---------------------------------------------------------------------");
+    printf("\nMostrando todos os produtos: ");
+    for (int i = 0; i < ind; i++)
+    {
+        printf("\nProduto %d: %s        Valor R$: %.2f       Unidade(s): %d", i + 1, produtos[i].nome, produtos[i].valor, produtos[i].qnt);
+    }
+    printf("\n");
+    return ind;
+}
+
+void buscar(int ind)
+{
+    system("cls");
+    int i = 0, pos, exit = 2, encontrado = 0, busc, cont = 0;
+    char nome2[40];
+
+    while (exit == 2)
+    {
+        if (ind == 0)
+        {
+            printf("\nNenhum produto cadastrado.\n");
+        }
+        else
+        {
+            printf("\nDigite o nome do produto que deseja encontrar: ");
+            fgets(nome2, 40, stdin);
+            nome2[strcspn(nome2, "\n")] = '\0';
+            for (i = 0; i < ind; i++)
+            {
+                if (strcmp(produtos[i].nome, nome2) == 0)
+                {
+                    encontrado = 1;
+                    pos = i;
+                    busc = i;
+                    cont++;
+                    printf("\nO item '%s' foi o produto %d a ser cadastrado.", nome2, pos + 1);
+                    printf("\nPreco: %.2f      Quantidade: %d\n", produtos[busc].valor, produtos[busc].qnt);
+                }
+                else
+                {
+                    encontrado = 0;
+                }
+            }
+            if (encontrado == 0)
+            {
+                printf("\nO objeto '%s' nao foi encontrado.\n", nome2);
+            }
+        }
+        exit = volt();
+    }
+}
+
+void alterar(int ind)
+{
+    system("cls");
+    int tudo = impri_tudo(ind);
+    int i = 0, qnt2, exit = 2, alterado = 0, alt;
+    char nome2[40];
+    float valor2;
+    while (exit == 2)
+    {
+        printf("\nDigite o nome do produto que deseja alterar: ");
+        fgets(nome2, 40, stdin);
+        nome2[strcspn(nome2, "\n")] = '\0';
+
+        for (i = 0; i < ind; i++)
+        {
+            if (strcmp(produtos[i].nome, nome2) == 0)
+            {
+                alterado = 1;
+                alt = i;
+            }
+        }
+
+        if (alterado)
+        {
+            printf("\nDigite o novo preco do produto %s: ", nome2);
+            scanf("%f", &valor2);
+            produtos[alt].valor = valor2;
+            printf("\nAproveite para mudar a quantidade tambem: ");
+            scanf("%d", &qnt2);
+            produtos[alt].qnt = qnt2;
+        }
+        else
+        {
+            printf("\nObjeto '%s' nao encontrado\n", nome2);
+        }
+        printf("\n");
+        exit = volt();
+    }
+}
+
+int remover(int ind, int nomes_ind)
+{
+    system("cls");
+    int tudo = impri_tudo(ind);
+    int lin = 0, coluna, encontrado = 0, exit = 2, pos = 0;
+    char nome2[40];
+    while (exit == 2)
+    {
+        printf("\nDigite o nome do produto que deseja remover: ");
+        fgets(nome2, 40, stdin);
+        nome2[strcspn(nome2, "\n")] = '\0';
+
+        for (lin = 0; lin < ind; lin++)
+        {
+            if (strcmp(produtos[lin].nome, nome2) == 0)
+            {
+                encontrado = 1;
+                for (coluna = lin; coluna < ind - 1; coluna++)
+                {
+                    produtos[coluna] = produtos[coluna + 1];
+                    strcpy(nomes_cadastrados[coluna], nomes_cadastrados[coluna + 1]);
+                }
+                ind--;
+                nomes_ind--;
+                break;
+            }
+            pos = lin;
+        }
+
+        if (encontrado)
+        {
+            printf("\nO produto %d chamado '%s' foi removido\n", pos + 1, nome2);
+        }
+        else
+        {
+            printf("\nO produto '%s' nao existe\n", nome2);
+        }
+        exit = volt();
+    }
+    return ind;
+}
+
+int volt()
+{
+    int volt;
+    printf("\nDeseja voltar ao menu? 1(sim), 2(nao): ");
+    scanf("%d", &volt);
+    getchar();
+
+    switch (volt)
+    {
+    case 1:
+        printf("\n");
+    case 2:
+        break;
+    }
+
+    return volt;
+}
